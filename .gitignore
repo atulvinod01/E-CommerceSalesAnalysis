@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+retail.db
+online_retail_II.xlsx
+online_retail_II.csv
+.ipynb_checkpoints/
