@@ -1,59 +1,72 @@
-# E-Commerce Strategic Analysis: Customer Retention & Value
+# E-Commerce Customer Map: Who to Reward, Win Back or Let Go
 
-## Executive Summary
-This project transforms raw transaction data into actionable business insights regarding customer retention and value. By cleaning the data, removing outliers, and performing cohort analysis, we aim to answer critical questions about sustainable growth and customer segmentation.
+Raw transactions turned into a list of who to reward, who to win back and who to let go.
 
-**Key Findings:**
-*   **Growth:** Revenue is growing, but active customer count is lagging, suggesting a reliance on higher-value orders rather than new user acquisition.
-*   **Segmentation:** A distinct group of "Champions" drives a significant portion of revenue, while a large "At Risk" segment requires re-engagement.
-*   **Retention:** Early-stage retention drops significantly, indicating a "leaky bucket" problem in the first 3 months.
+Data: [UCI Online Retail II](https://archive.ics.uci.edu/dataset/502/online+retail+ii), about 1 million
+invoice lines from a UK online retailer, Dec 2009 to Dec 2011. After cleaning: 778,325 lines and 5,866 customers.
 
----
+## Method
 
-## Visual Insights
+1. **SQLite ETL:** the raw spreadsheet is loaded into `retail.db`. SQL keeps completed sales to known
+   customers (positive quantity and price, no cancellations).
+2. **Outliers:** line revenue more than 3 standard deviations from the mean is dropped.
+3. **RFM scoring:** each customer gets Recency (days since last order), Frequency (orders) and
+   Monetary (spend). Each is **scored 1 to 5** by quintile, and recent buyers score 5 for recency.
+4. **Segment map:** recency and frequency scores place each customer in one of 11 segments.
+   Monetary score ranks customers inside a segment, so the biggest spenders get budget first.
+5. **Action:** every segment maps to Reward, Win back, Nurture or Let go, with a priority and a suggested play.
+6. **Cohorts:** monthly retention by first-purchase month.
 
-### 1. Are We Growing Sustainably?
-**Business Question:** Is our revenue growth driven by acquiring *more* customers or just getting existing ones to spend *more*?
+## Results
 
-![Revenue vs Active Customers](images/plot_a_growth.png)
+![RFM segment map](images/plot_b_rfm.png)
 
-**Insight:**
-The dual-axis chart reveals the relationship between revenue growth and customer acquisition. If revenue rises while active customers flatline, we are extracting more value per user (higher LTV). If both rise, we are in a healthy growth phase. Divergence where customers increase but revenue flatlines could indicate a drop in average order value.
+| Segment | Customers | Share of revenue | Action |
+|---|---:|---:|---|
+| Champions | 1,472 (25%) | 69% | **Reward:** loyalty offers |
+| Loyal | 519 (9%) | 11% | Reward |
+| At risk + Can't lose | 355 (6%) | 6% | **Win back first:** were frequent, now quiet |
+| Need attention + About to sleep | 937 (16%) | 5% | Win back, cheaper offers |
+| Potential loyalists, Promising, New | 875 (15%) | 4% | Nurture |
+| Hibernating + Lost | 1,708 (29%) | 5% | **Let go:** no paid spend |
 
----
+- **Reward:** a quarter of customers, the Champions, bring in 69% of revenue. They get loyalty offers.
+- **Win back:** 355 At risk and Can't lose customers were once frequent buyers and have gone quiet.
+  They get the retention budget first, biggest spenders first. The list is the first rows of
+  `outputs/customer_actions.csv`.
+- **Let go:** 29% of customers bring in 5% of revenue. Paid marketing to them is better spent elsewhere.
 
-### 2. Who Are Our Best Customers? (RFM Segmentation)
-**Business Question:** How can we segment our user base to target marketing efforts effectively?
+### Growth
 
-![RFM Segmentation](images/plot_b_rfm.png)
+![Revenue vs active customers](images/plot_a_growth.png)
 
-**Insight:**
-The RFM segmentation highlights our 'Champions' in the top right (High Frequency, High Monetary). The color gradient indicates Recency. 'At Risk' customers are those with high frequency/monetary values but dark colors (high recency, meaning they haven't bought in a while). These are prime targets for re-engagement campaigns.
+Revenue and active customers move together, with a strong Q4 peak each year. Growth comes from
+more customers buying, not from bigger baskets.
 
----
+### Retention
 
-### 3. Are We Keeping New Users? (Retention Heatmap)
-**Business Question:** Do new users stick around, or do they churn quickly?
+![Retention heatmap](images/plot_c_retention.png)
 
-![Retention Heatmap](images/plot_c_retention.png)
+Most cohorts keep only 15 to 30% of customers in their second month. The December 2009 cohort holds
+35 to 50% for a year; those are the loyal core who were already customers when the data starts.
 
-**Insight:**
-The heatmap visualizes the 'leaky bucket'. A sharp drop-off in retention percentages in the first few months indicates a need for better onboarding or early-stage engagement. High retention rates in later months for older cohorts suggest a loyal core user base, while newer cohorts showing lower retention might indicate recent quality issues or market saturation.
+## Outputs
 
----
+- `outputs/customer_actions.csv`: every customer with R, F, M, scores, segment, action, priority and suggested play.
+  Sorted so the list reads top to bottom as "spend here first".
+- `outputs/segment_summary.csv`: customers, revenue share and action per segment.
+- `retail.db`: the raw data plus an `rfm` table with the results (created locally, not committed).
 
-## Technical Approach
-*   **Data Engineering:** Python (`sqlite3`, `pandas`) for ETL and SQL for cleaning.
-*   **Statistical Analysis:** `numpy` for Z-score outlier removal (> 3 sigma).
-*   **Visualization:** `matplotlib` and `seaborn` for professional-grade plotting.
+## How to run
 
-## How to Run
-1.  Ensure `online_retail_II.csv` is in the directory.
-2.  Run the analysis notebook:
-    ```bash
-    jupyter notebook analysis.ipynb
-    ```
-3.  Or regenerate the plots:
-    ```bash
-    python generate_plots.py
-    ```
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python analysis.py
+```
+
+The first run downloads the dataset (45 MB) and loads it into SQLite. That takes about a minute; later runs
+are quick. A local `online_retail_II.csv` or `.xlsx` is used if present. `analysis.ipynb` runs the same code
+and shows the tables and plots.
+
+**Stack:** Python, SQLite, pandas, Seaborn.

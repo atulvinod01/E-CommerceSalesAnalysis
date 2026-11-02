@@ -1,0 +1,12 @@
+Segment,Customers,Revenue,AvgRecencyDays,AvgOrders,CustomerShare,RevenueShare,Action,Priority,Play
+Can't lose,284,488588.4,346.556,5.472,0.048,0.031,Win back,1,Retention budget first: personal outreach
+At risk,71,444641.702,333.268,15.93,0.012,0.029,Win back,1,"Retention budget first: were frequent, now quiet"
+Champions,1472,10763675.625,20.155,15.578,0.251,0.692,Reward,2,"Loyalty offers, early access, referral asks"
+Loyal,519,1661716.235,105.27,8.539,0.088,0.107,Reward,3,Upsell and loyalty programme
+Need attention,555,558988.19,213.564,3.065,0.095,0.036,Win back,4,Time-limited offer before they slip
+Potential loyalists,432,421426.181,24.731,3.125,0.074,0.027,Nurture,4,Membership or second-purchase offer
+About to sleep,382,205254.383,106.662,1.359,0.065,0.013,Win back,5,Low-cost reminder campaign
+Promising,275,182379.75,27.36,1.738,0.047,0.012,Nurture,5,Onboarding and product discovery
+New customers,168,56546.67,29.94,1.0,0.029,0.004,Nurture,5,Welcome series
+Hibernating,186,184170.79,506.522,2.909,0.032,0.012,Let go,6,Generic newsletter only
+Lost,1522,595927.412,458.473,1.248,0.259,0.038,Let go,7,No paid spend
